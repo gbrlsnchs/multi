@@ -1,0 +1,13 @@
+{
+  "name": "test",
+  "tasks": [
+    {
+      "name": "test tail",
+      "command": "tail",
+      "args": [
+        "-f",
+        "test.txt"
+      ]
+    }
+  ]
+}
