@@ -10,7 +10,7 @@ import (
 // sequentially to pick a color.
 type ColorPicker struct {
 	colors []*color.Color
-	count  int
+	i      int
 	mu     *sync.Mutex
 }
 
@@ -24,25 +24,22 @@ func NewColorPicker() *ColorPicker {
 		color.New(color.FgMagenta),
 		color.New(color.FgCyan),
 	}
-
 	return &ColorPicker{colors: colors, mu: &sync.Mutex{}}
 }
 
 // Pick retrieves a color and increments the counter
 // until it reaches the edge and then loops through the map again.
 func (cp *ColorPicker) Pick() *color.Color {
+	defer cp.mu.Unlock()
 	cp.mu.Lock()
-
-	c := cp.colors[cp.count]
-
-	cp.incr()
-	cp.mu.Unlock()
-
+	c := cp.colors[cp.index()]
 	return c
 }
 
-func (cp *ColorPicker) incr() {
-	if cp.count++; cp.count >= len(cp.colors) {
-		cp.count = 0
+func (cp *ColorPicker) index() int {
+	defer func() { cp.i++ }()
+	if cp.i >= len(cp.colors) {
+		cp.i = 0
 	}
+	return cp.i
 }
