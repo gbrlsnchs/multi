@@ -1,0 +1,21 @@
+{
+  "name": "JSON test",
+  "tasks": [
+    {
+      "name": "echo hello",
+      "command": "echo",
+      "args": [
+        "hello",
+        "JSON"
+      ]
+    },
+    {
+      "name": "echo world",
+      "command": "echo",
+      "args": [
+        "world",
+        "JSON"
+      ]
+    }
+  ]
+}

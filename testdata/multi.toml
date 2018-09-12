@@ -1,0 +1,11 @@
+name = "TOML test"
+
+[[tasks]]
+  name = "echo hello"
+  command = "echo"
+  args = ["hello", "TOML"]
+
+[[tasks]]
+  name = "echo world"
+  command = "echo"
+  args = ["world", "TOML"]
