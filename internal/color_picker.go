@@ -10,21 +10,23 @@ import (
 // sequentially to pick a color.
 type ColorPicker struct {
 	colors []*color.Color
-	i      int
 	mu     *sync.Mutex
+	i      int
 }
 
 // NewColorPicker creates a filled color picker.
 func NewColorPicker() *ColorPicker {
-	colors := []*color.Color{
-		color.New(color.FgRed),
-		color.New(color.FgGreen),
-		color.New(color.FgYellow),
-		color.New(color.FgBlue),
-		color.New(color.FgMagenta),
-		color.New(color.FgCyan),
+	return &ColorPicker{
+		colors: []*color.Color{
+			color.New(color.FgRed),
+			color.New(color.FgGreen),
+			color.New(color.FgYellow),
+			color.New(color.FgBlue),
+			color.New(color.FgMagenta),
+			color.New(color.FgCyan),
+		},
+		mu: &sync.Mutex{},
 	}
-	return &ColorPicker{colors: colors, mu: &sync.Mutex{}}
 }
 
 // Pick retrieves a color and increments the counter
