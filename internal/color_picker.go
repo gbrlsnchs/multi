@@ -9,14 +9,14 @@ import (
 // ColorPicker is a hash map that loops through it
 // sequentially to pick a color.
 type ColorPicker struct {
-	m     []*color.Color
-	mu    *sync.Mutex
-	count int
+	colors []*color.Color
+	count  int
+	mu     *sync.Mutex
 }
 
 // NewColorPicker creates a filled color picker.
 func NewColorPicker() *ColorPicker {
-	m := []*color.Color{
+	colors := []*color.Color{
 		color.New(color.FgRed),
 		color.New(color.FgGreen),
 		color.New(color.FgYellow),
@@ -25,7 +25,7 @@ func NewColorPicker() *ColorPicker {
 		color.New(color.FgCyan),
 	}
 
-	return &ColorPicker{m: m, mu: &sync.Mutex{}}
+	return &ColorPicker{colors: colors, mu: &sync.Mutex{}}
 }
 
 // Pick retrieves a color and increments the counter
@@ -33,7 +33,7 @@ func NewColorPicker() *ColorPicker {
 func (cp *ColorPicker) Pick() *color.Color {
 	cp.mu.Lock()
 
-	c := cp.m[cp.count]
+	c := cp.colors[cp.count]
 
 	cp.incr()
 	cp.mu.Unlock()
@@ -42,7 +42,7 @@ func (cp *ColorPicker) Pick() *color.Color {
 }
 
 func (cp *ColorPicker) incr() {
-	if cp.count++; cp.count >= len(cp.m) {
+	if cp.count++; cp.count >= len(cp.colors) {
 		cp.count = 0
 	}
 }
