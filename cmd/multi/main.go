@@ -15,14 +15,14 @@ import (
 )
 
 func main() {
-	cfg := flag.String("config", "multi.toml", "path for a configuration file, defaults to multi.toml")
+	cfg := flag.String("config", "multi.toml", "choose another config file")
 	noColor := flag.Bool("nocolor", false, "disable colorful output")
 	noPid := flag.Bool("nopid", false, "disable printing PID along with the output")
 	noDate := flag.Bool("nodate", false, "disable logging date")
 	noTime := flag.Bool("notime", false, "disable logging time")
 	silent := flag.Bool("silent", false, "disable output")
-	stdout := flag.String("stdout", "", "path for logging stdout to a file")
-	stderr := flag.String("stderr", "", "path for logging stderr to a file")
+	stdout := flag.String("stdout", "", "log stdout to a file")
+	stderr := flag.String("stderr", "", "log stderr to a file")
 	flag.Parse()
 
 	b, err := ioutil.ReadFile(*cfg)
