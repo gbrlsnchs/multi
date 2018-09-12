@@ -17,6 +17,12 @@ import (
 func main() {
 	cfg := flag.String("config", "multi.toml", "path for a configuration file, defaults to multi.toml")
 	noColor := flag.Bool("nocolor", false, "disable colorful output")
+	noPid := flag.Bool("nopid", false, "disable printing PID along with the output")
+	noDate := flag.Bool("nodate", false, "disable logging date")
+	noTime := flag.Bool("notime", false, "disable logging time")
+	silent := flag.Bool("silent", false, "disable output")
+	stdout := flag.String("stdout", "", "path for logging stdout to a file")
+	stderr := flag.String("stderr", "", "path for logging stderr to a file")
 	flag.Parse()
 
 	b, err := ioutil.ReadFile(*cfg)
@@ -37,9 +43,49 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tl.Stderr = []io.Writer{os.Stderr}
-	tl.Stdout = []io.Writer{os.Stdout}
-	if err = tl.Start(!*noColor); err != nil {
+
+	if !*silent {
+		tl.Stderr = []io.Writer{os.Stderr}
+		tl.Stdout = []io.Writer{os.Stdout}
+	}
+	var f *os.File
+	if *stderr != "" {
+		if f, err = os.OpenFile(*stderr, os.O_APPEND, os.ModeAppend); err != nil {
+			if !os.IsNotExist(err) {
+				log.Fatal(err)
+			}
+			if f, err = os.Create(*stderr); err != nil {
+				log.Fatal(err)
+			}
+		}
+		tl.Stderr = append(tl.Stderr, f)
+	}
+	if *stdout != "" {
+		if f, err = os.OpenFile(*stdout, os.O_APPEND, os.ModeAppend); err != nil {
+			if !os.IsNotExist(err) {
+				log.Fatal(err)
+			}
+			if f, err = os.Create(*stdout); err != nil {
+				log.Fatal(err)
+			}
+		}
+		tl.Stdout = append(tl.Stdout, f)
+	}
+	tl.Flags = log.Ldate | log.Ltime | multi.Mcolor | multi.Mpid
+	if *noColor {
+		tl.Flags ^= multi.Mcolor
+	}
+	if *noPid {
+		tl.Flags ^= multi.Mpid
+	}
+	if *noDate {
+		tl.Flags ^= log.Ldate
+	}
+	if *noTime {
+		tl.Flags ^= log.Ltime
+	}
+
+	if err = tl.Start(); err != nil {
 		log.Fatal(err)
 	}
 }
