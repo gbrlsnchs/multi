@@ -22,8 +22,6 @@ type Task struct {
 	TTL     time.Duration `json:"ttl" toml:"ttl"`
 	Flags   int           `json:"-" toml:"-"`
 	padding int           // used for task lists
-	stderr  chan string
-	stdout  chan string
 	color   *color.Color
 }
 
