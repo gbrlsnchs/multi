@@ -16,6 +16,7 @@ import (
 
 func main() {
 	cfg := flag.String("config", "multi.toml", "choose another config file")
+	debug := flag.String("debug", "", "log errors to a file")
 	noColor := flag.Bool("nocolor", false, "disable colorful output")
 	noPid := flag.Bool("nopid", false, "disable printing PID along with the output")
 	noDate := flag.Bool("nodate", false, "disable logging date")
@@ -24,6 +25,11 @@ func main() {
 	stdout := flag.String("stdout", "", "log stdout to a file")
 	stderr := flag.String("stderr", "", "log stderr to a file")
 	flag.Parse()
+	log.SetFlags(0)
+	log.SetPrefix("multi: ")
+	if *debug != "" {
+		log.SetOutput(io.MultiWriter(os.Stderr, openOrCreate(*debug)))
+	}
 
 	b, err := ioutil.ReadFile(*cfg)
 	if err != nil {
@@ -48,28 +54,11 @@ func main() {
 		tl.Stderr = []io.Writer{os.Stderr}
 		tl.Stdout = []io.Writer{os.Stdout}
 	}
-	var f *os.File
 	if *stderr != "" {
-		if f, err = os.OpenFile(*stderr, os.O_APPEND, os.ModeAppend); err != nil {
-			if !os.IsNotExist(err) {
-				log.Fatal(err)
-			}
-			if f, err = os.Create(*stderr); err != nil {
-				log.Fatal(err)
-			}
-		}
-		tl.Stderr = append(tl.Stderr, f)
+		tl.Stderr = append(tl.Stderr, openOrCreate(*stderr))
 	}
 	if *stdout != "" {
-		if f, err = os.OpenFile(*stdout, os.O_APPEND, os.ModeAppend); err != nil {
-			if !os.IsNotExist(err) {
-				log.Fatal(err)
-			}
-			if f, err = os.Create(*stdout); err != nil {
-				log.Fatal(err)
-			}
-		}
-		tl.Stdout = append(tl.Stdout, f)
+		tl.Stdout = append(tl.Stdout, openOrCreate(*stdout))
 	}
 	tl.Flags = log.Ldate | log.Ltime | multi.Mcolor | multi.Mpid
 	if *noColor {
@@ -88,4 +77,12 @@ func main() {
 	if err = tl.Start(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func openOrCreate(fpath string) *os.File {
+	f, err := os.OpenFile(fpath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return f
 }
